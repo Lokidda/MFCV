@@ -60,13 +60,14 @@ ub=@(Tx_lb,Tx_ub,Ty_lb,Ty_ub)[Tx_ub;Ty_ub;ones(n,1);Inf*ones(2*n,1)];
 %nodes space initial
 LP_sol=linprog(-f,A(Tx_lb,Tx_ub,Ty_lb,Ty_ub),b(Tx_lb,Tx_ub,Ty_lb,Ty_ub),[],[],lb(Tx_lb,Tx_ub,Ty_lb,Ty_ub),ub(Tx_lb,Tx_ub,Ty_lb,Ty_ub));
 inlier_ub=f'*LP_sol;
-inlier_lb=sqrt(sum(sum((abs(delta_x+LP_sol(1))<delta).* ((abs(delta_y+LP_sol(2))<delta))')));
+inlier_lb=sum((abs(delta_x+LP_sol(1))<=delta).* ((abs(delta_y+LP_sol(2))<=delta)));
 plot_bound=[inlier_ub;inlier_lb];
 root = struct('Tx_lb',Tx_lb,'Tx_ub',Tx_ub,...
                'Ty_lb',Ty_lb,'Ty_ub',Ty_ub,...
                'inlier_lb',inlier_lb,'inlier_ub',inlier_ub,...
                'Tx_opt',LP_sol(1),'Ty_opt',LP_sol(2),'area',(Tx_ub-Tx_lb)*(Ty_ub-Ty_lb) );
 
+bounds_initial=[inlier_ub;0];
 
 %% ---------------BnB-----------
 
@@ -81,7 +82,7 @@ bounds=zeros(2,0);
 ub_max=100;
 lb_max=0;
 
-while  ub_max-lb_max>=1
+while  ub_max-lb_max>0.5
  % flag=0;
  % for i=1 : size(list,2)
  %     if list(i).inlier_ub-list(i).inlier_lb>1
@@ -142,11 +143,23 @@ end
 
 
 
-
+bounds=[bounds_initial,bounds];
 iterations=1:size(bounds,2);
 plot(iterations,-bounds(1,:),'b',iterations,-bounds(2,:),'r');
 
 Tx_best=list(size(list,2)-1).Tx_opt;
 Ty_best=list(size(list,2)-1).Ty_opt;
+grid on;
+xlabel('Upper and lower bounds');
+ylabel('Iterations');
+title('Convergence of bounds')
+legend('upper','lower');
 
 
+Tx_opt=list(size(list,2)-1).Tx_opt
+Ty_opt=list(size(list,2)-1).Ty_opt
+inliers = find((abs(delta_x + Tx_opt) <= delta) .* (abs(delta_y + Ty_opt) <= delta));
+figure;
+showMatchedFeatures(imread('InputLeftImage.png'),imread('InputRightImage.png'),[x1(inliers)';y1(inliers)']',[x2(inliers)';y2(inliers)']','montage','PlotOptions',{'yo','r+','g-'});
+figure;
+showMatchedFeatures(imread('InputLeftImage.png'),imread('InputRightImage.png'),[x1';y1']',[x2';y2']','montage','PlotOptions',{'bo','b+','b-'});
