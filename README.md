@@ -1,3 +1,3 @@
 # MFCV
 HW1:finish
-HW2:to do correspondeces plot
+HW2:finish
