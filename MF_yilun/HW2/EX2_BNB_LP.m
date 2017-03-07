@@ -42,8 +42,8 @@ A5=@(Tx_lb,Tx_ub,Ty_lb,Ty_ub)[zeros(n,2),Tx_lb*eye(n),-eye(n),zeros(n)];
 A6=@(Tx_lb,Tx_ub,Ty_lb,Ty_ub)[zeros(n,2),-Tx_ub*eye(n),eye(n),zeros(n)];
 A7=@(Tx_lb,Tx_ub,Ty_lb,Ty_ub)[zeros(n,2),Ty_lb*eye(n),zeros(n),-eye(n)];
 A8=@(Tx_lb,Tx_ub,Ty_lb,Ty_ub)[zeros(n,2),-Ty_ub*eye(n),zeros(n),eye(n)];
-A9=@(Tx_lb,Tx_ub,Ty_lb,Ty_ub)[ones(n,1),zeros(n,1),Ty_ub*eye(n),-eye(n),zeros(n)];
-A10=@(Tx_lb,Tx_ub,Ty_lb,Ty_ub)[-ones(n,1),zeros(n,1),-Ty_lb*eye(n),eye(n),zeros(n)];
+A9=@(Tx_lb,Tx_ub,Ty_lb,Ty_ub)[ones(n,1),zeros(n,1),Tx_ub*eye(n),-eye(n),zeros(n)];
+A10=@(Tx_lb,Tx_ub,Ty_lb,Ty_ub)[-ones(n,1),zeros(n,1),-Tx_lb*eye(n),eye(n),zeros(n)];
 A11=@(Tx_lb,Tx_ub,Ty_lb,Ty_ub)[zeros(n,1),ones(n,1),Ty_ub*eye(n),zeros(n),-eye(n)];
 A12=@(Tx_lb,Tx_ub,Ty_lb,Ty_ub)[zeros(n,1),-ones(n,1),-Ty_lb*eye(n),zeros(n),eye(n)];
 A=@(Tx_lb,Tx_ub,Ty_lb,Ty_ub)[A1(Tx_lb,Tx_ub,Ty_lb,Ty_ub);A2(Tx_lb,Tx_ub,Ty_lb,Ty_ub);A3(Tx_lb,Tx_ub,Ty_lb,Ty_ub);...
@@ -106,6 +106,11 @@ while  ub_max-lb_max>=1
     if(list(i).inlier_lb>lb_max)
         lb_max=list(i).inlier_lb;
     end
+    if size(bounds,2)>0
+        if lb_max<bounds(2,size(bounds,2))
+           lb_max=bounds(2,size(bounds,2));
+        end
+    end
     if(list(i).inlier_lb<lb_min)
         lb_min=list(i).inlier_lb;
     end
@@ -133,17 +138,6 @@ while  ub_max-lb_max>=1
           list(i)=[];
       end
   end
-  %deletlist=[];
-  %for i=1:size(list,2)
-  %    for j=1:size(list,2)
-  %        if(list(i).inlier_ub<list(j).inlier_lb)
-  %            deletlist=[deletlist,i];
-  %        end
-  %    end
-  %end
-  %list(deletlist)=[];
-  
-  
 end
 
 
@@ -151,5 +145,8 @@ end
 
 iterations=1:size(bounds,2);
 plot(iterations,-bounds(1,:),'b',iterations,-bounds(2,:),'r');
+
+Tx_best=list(size(list,2)-1).Tx_opt;
+Ty_best=list(size(list,2)-1).Ty_opt;
 
 

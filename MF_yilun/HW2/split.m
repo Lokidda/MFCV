@@ -52,6 +52,4 @@ delta=3;
  end
 
  children=[node_child1 node_child2];
- node_child1 
- node_child2
  
